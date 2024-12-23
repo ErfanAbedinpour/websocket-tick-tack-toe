@@ -1,12 +1,10 @@
 import { connection } from "websocket";
 
 interface IConnection {
-    clientId: string;
     connection: connection
 }
 
 interface IGame {
-    gameId: string;
     Players: connection[]
 }
 

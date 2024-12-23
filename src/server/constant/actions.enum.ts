@@ -2,5 +2,6 @@ export enum Actions {
     create = "create",
     join = "join",
     connect = "connect",
-    error = "error"
+    error = "error",
+    leave = "leave"
 }
