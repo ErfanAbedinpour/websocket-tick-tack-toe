@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start":"node dist/server/server.js"
+    "start": "node dist/server/server.js"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "dotenv": "^16.4.7",
+    "ioredis": "^5.4.2",
     "websocket": "^1.0.35"
   },
   "devDependencies": {
