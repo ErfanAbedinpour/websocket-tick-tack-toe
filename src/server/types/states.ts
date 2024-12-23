@@ -5,7 +5,8 @@ interface IConnection {
 }
 
 interface IGame {
-    Players: connection[]
+    isMax: boolean;
+    players: string[]
 }
 
 export const ConnectionStates = new Map<string, IConnection>();
