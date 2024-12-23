@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/node": "^22.10.2",
     "@types/websocket": "^1.0.10",
+    "dotenv": "^16.4.7",
     "websocket": "^1.0.35"
   }
 }
