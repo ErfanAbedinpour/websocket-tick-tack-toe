@@ -1,13 +1,20 @@
 import { connection } from "websocket";
+import { GameUserSymbol } from "../services/game.service";
 
 interface IConnection {
     connection: connection
 }
 
-interface IGame {
+interface Player {
+    connectionId: string;
+    symbol: GameUserSymbol
+}
+
+interface IRoom {
     isMax: boolean;
-    players: string[]
+    players: Player[],
+    board: (string | null)[][]
 }
 
 export const ConnectionStates = new Map<string, IConnection>();
-export const GameStates = new Map<string, IGame>(); 
+export const RoomStates = new Map<string, IRoom>(); 

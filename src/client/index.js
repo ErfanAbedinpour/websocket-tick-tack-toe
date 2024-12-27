@@ -4,11 +4,16 @@ const ACTIONS = {
     join: "join",
     connect: "connect",
     error: "error",
-    leave: "leave"
+    leave: "leave",
+    win: "win",
+    move: "move",
+    lose: "lose",
+    draw: "draw"
 }
 
 // clientID
 let clientId;
+let gameId;
 
 const infoDiv = document.getElementById("information");
 const buttonsDiv = document.getElementById("buttons");
@@ -18,6 +23,7 @@ const gameInput = document.getElementById("gameId-input");
 const joinBtn = document.getElementById("join");
 const usersDiv = document.getElementById("users");
 const gameIdEl = document.getElementById("gameId");
+const board = document.getElementById("board")
 
 ws.addEventListener("message", msg => {
     const data = JSON.parse(msg.data);
@@ -34,7 +40,7 @@ ws.addEventListener("message", msg => {
     // when user create room
     if (data.action === ACTIONS.create) {
         // disable button
-        const gameId = data.gameId;
+        gameId = data.gameId;
         // disable newGameBtn and enable leave Room
         enableButton(leaveGameBtn);
         disableButton(newGameBtn);
@@ -44,17 +50,16 @@ ws.addEventListener("message", msg => {
         // append tag to page
         return
     }
-
     // user joined to room
     if (data.action === ACTIONS.join) {
         const players = data.players;
-        const gameId = data.gameId;
+        gameId = data.gameId;
         // write GameId to Display to User
         gameIdEl.textContent = `gameId: ${gameId}`;
         for (let i = 0; i < players.length; i++) {
             const p = document.createElement("p");
             p.id = `user-${i + 1}`;
-            p.innerText = `user${i + 1}: ${players[i]}`;
+            p.innerText = `user${i + 1}: ${players[i].connectionId}`;
             infoDiv.append(p);
         }
 
@@ -72,7 +77,19 @@ ws.addEventListener("message", msg => {
         enableButton(newGameBtn);
         enableButton(joinBtn);
     }
+    if (data.action === ACTIONS.move) {
+        console.log(data)
+    }
+    if (data.action === ACTIONS.win) {
+        alert("winner")
+    }
 
+    if (data.action === ACTIONS.lose) {
+        alert("lose")
+    }
+    if (data.action === ACTIONS.draw) {
+        alert("draw")
+    }
 
 })
 
@@ -83,7 +100,25 @@ newGameBtn.addEventListener("click", () => {
 // leave Game
 leaveGameBtn.addEventListener('click', leaveRoom)
 
+document.querySelectorAll('.cell').forEach(el => {
+    el.addEventListener('click', () => {
+        if (!gameId)
+            return alert("please join ot create new room")
 
+        const [x, y] = el.id.split(",")
+
+        const paylaod = {
+            action: ACTIONS.move,
+            clientId,
+            gameId,
+            move: {
+                x,
+                y
+            }
+        }
+        ws.send(JSON.stringify(paylaod))
+    })
+})
 // join Game
 joinBtn.addEventListener('click', () => {
     const gameId = gameInput.value;
@@ -141,4 +176,8 @@ function leaveRoom() {
     }
 
     ws.send(JSON.stringify(payload));
+}
+
+function move(position) {
+
 }

@@ -4,5 +4,8 @@ export enum Actions {
     connect = "connect",
     error = "error",
     leave = "leave",
-    move = "move"
+    move = "move",
+    lose = "lose",
+    win = "win",
+    draw = "draw"
 }

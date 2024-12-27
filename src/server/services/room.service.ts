@@ -1,73 +1,73 @@
 import { randomUUID } from "crypto";
 import { connection } from "websocket";
 import { RoomDto } from "./dto/create-toom.dto";
-import { ConnectionStates, GameStates } from "../types/states";
+import { ConnectionStates, RoomStates } from "../types/states";
 import { IWsResponse } from "../types/ws.respone";
 import { Actions } from "../constant/actions.enum";
 import { JoinRoomDto } from "./dto/join-room.dto";
 import { LeaveRoomDto } from "./dto/leave-room.dto";
+import { GameUserSymbol } from "./game.service";
+import { FullRoomRoom } from "../error/maxRoom.error";
+import { RoomNotFound } from "../error/invalid.room.error";
 
 export class RoomService {
-    constructor(private con: connection) { }
     // create room
     createRoom(data: RoomDto) {
         const gameId = randomUUID();
         const clientId = data.clientId;
 
 
-        GameStates.set(gameId, { players: [clientId], isMax: false });
+        const board = Array(3).fill(undefined).map(() => Array(3).fill(null));
+
+        RoomStates.set(gameId, {
+            players: [{
+                connectionId: clientId,
+                symbol: GameUserSymbol.x
+            }], isMax: false, board
+        });
 
         const response: IWsResponse = {
             action: Actions.create,
             gameId: gameId
         }
 
-        return this.con.send(JSON.stringify(response));
+        return response
     }
-
     // join room
     joinRoom(data: JoinRoomDto) {
         const gameId = data.gameId;
         const clientId = data.clientId;
-        const game = GameStates.get(gameId);
+        const game = RoomStates.get(gameId);
 
         if (!game) {
-            const payload: IWsResponse = {
-                action: Actions.error,
-                message: "game not found"
-            }
-            return this.con.send(JSON.stringify(payload));
+            throw new RoomNotFound("room not found");
         }
 
         if (game.isMax) {
-            const payload: IWsResponse = {
-                action: Actions.error,
-                message: "game is ful"
-            }
-            return this.con.send(JSON.stringify(payload));
+            throw new FullRoomRoom("room is max ");
         }
 
-        game.players.push(clientId);
+        game.players.push({
+            connectionId: clientId,
+            symbol: GameUserSymbol.y
+        });
         game.isMax = true;
+
         const paylaod = {
             action: Actions.join,
             gameId: gameId,
             players: game.players
         }
 
-        game.players.forEach(id => {
-            ConnectionStates.get(id)?.connection.send(JSON.stringify(paylaod));
-        })
-
-        return;
+        return paylaod;
     }
     // leave room
     leaveRoom(data: LeaveRoomDto) {
         const gameId = data.gameId.trim();
         const clientId = data.clientId;
-        const game = GameStates.get(gameId);
+        const game = RoomStates.get(gameId);
 
-        GameStates.delete(gameId);
+        RoomStates.delete(gameId);
 
         const paylaod = {
             action: Actions.leave,
@@ -75,9 +75,6 @@ export class RoomService {
             gameId: gameId,
         }
 
-        game?.players.forEach(id => {
-            ConnectionStates.get(id)?.connection.send(JSON.stringify(paylaod))
-        })
-        return;
+        return { paylaod, game };
     }
 }
