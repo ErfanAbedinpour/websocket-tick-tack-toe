@@ -11,39 +11,39 @@ export function messageHandler(con: connection) {
     const gameService = new GameService();
 
     return function (msg: Message) {
-        // do not send binary file
-        if (msg.type === 'binary')
-            return con.send(JSON.stringify({ action: Actions.error, message: "please send utf8 data" }))
+        try {
+            // do not send binary file
+            if (msg.type === 'binary')
+                return con.send(JSON.stringify({ action: Actions.error, message: "please send utf8 data" }))
 
-        // parse File And Do Action
-        let data = JSON.parse(msg.utf8Data);
-        console.log(data)
-        if (data.action === Actions.create) {
-            const response = roomService.createRoom(data);
-            return con.send(JSON.stringify(response));
-        }
+            // parse File And Do Action
+            let data = JSON.parse(msg.utf8Data);
+            console.log(data)
+            if (data.action === Actions.create) {
+                const response = roomService.createRoom(data);
+                return con.send(JSON.stringify(response));
+            }
 
-        if (data.action === Actions.join) {
-            const resp = roomService.joinRoom(data)
+            if (data.action === Actions.join) {
+                const resp = roomService.joinRoom(data)
 
-            resp.players.forEach(player => {
-                ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(resp));
-            })
+                resp.players.forEach(player => {
+                    ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(resp));
+                })
 
-        }
+            }
 
-        if (data.action === Actions.leave) {
-            const resp = roomService.leaveRoom(data)
-            return resp.game?.players.forEach(player => {
-                ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(resp))
-            })
+            if (data.action === Actions.leave) {
+                const resp = roomService.leaveRoom(data)
+                return resp.game?.players.forEach(player => {
+                    ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(resp))
+                })
 
-        }
+            }
 
-        if (data.action === Actions.move) {
-            try {
+            if (data.action === Actions.move) {
                 console.log('i am here')
-                console.log(gameService.move(data))
+                console.log("move is ", gameService.move(data))
 
                 const game = RoomStates.get(data.gameId);
                 console.log('game is ', game)
@@ -87,11 +87,14 @@ export function messageHandler(con: connection) {
                     ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(paylaod))
                 })
 
-            } catch (err) {
-                if (err instanceof WsError)
-                    con.send(err.error)
             }
-        }
+        } catch (err) {
+            if (err instanceof WsError)
+                con.send(JSON.stringify(err.error))
 
+            if (err instanceof Error)
+                con.send(JSON.stringify({ action: Actions.error, message: err.message }))
+
+        }
     }
 }

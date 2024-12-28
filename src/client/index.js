@@ -78,7 +78,9 @@ ws.addEventListener("message", msg => {
         enableButton(joinBtn);
     }
     if (data.action === ACTIONS.move) {
-        console.log(data)
+        const { x, y, symbol } = data;
+
+        document.getElementById(`${x},${y}`).textContent = symbol;
     }
     if (data.action === ACTIONS.win) {
         alert("winner")
