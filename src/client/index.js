@@ -72,10 +72,10 @@ ws.addEventListener("message", msg => {
 
     if (data.action === ACTIONS.leave) {
         clearInformations();
-        // gameIdEl.innerText = "gameId : ";
         disableButton(leaveGameBtn)
         enableButton(newGameBtn);
         enableButton(joinBtn);
+        gameId = null;
     }
     if (data.action === ACTIONS.move) {
         const { x, y, symbol } = data;
@@ -83,18 +83,28 @@ ws.addEventListener("message", msg => {
         document.getElementById(`${x},${y}`).textContent = symbol;
     }
     if (data.action === ACTIONS.win) {
-        alert("winner")
+        gameStateAction("winner")
     }
 
     if (data.action === ACTIONS.lose) {
-        alert("lose")
+        gameStateAction("lose")
     }
     if (data.action === ACTIONS.draw) {
-        alert("draw")
+        gameStateAction("draw")
+        gameId = null
     }
 
 })
 
+function gameStateAction(state) {
+    alert(state)
+    enableButton(newGameBtn)
+    disableButton(leaveGameBtn)
+    disableButton(joinBtn)
+    clearInformations();
+    clearGameBoard()
+    gameId = null
+}
 // new  Game 
 newGameBtn.addEventListener("click", () => {
     createRoom(clientId);
@@ -161,6 +171,15 @@ function createRoom(clientId) {
 
 function clearInformations() {
     const nodes = infoDiv.childNodes;
+    for (let i = 0; i < nodes.length; i++) {
+        console.log(nodes[i])
+        nodes[i].innerText = "";
+    }
+    gameInput.value = "";
+}
+
+function clearGameBoard() {
+    const nodes = board.childNodes;
     for (let i = 0; i < nodes.length; i++) {
         console.log(nodes[i])
         nodes[i].innerText = "";

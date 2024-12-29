@@ -78,6 +78,7 @@ export class RoomService {
             gameId: gameId,
         }
 
-        return { paylaod, game };
+
+        return { ...paylaod, game };
     }
 }

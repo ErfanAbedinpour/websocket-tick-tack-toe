@@ -35,7 +35,8 @@ export function messageHandler(con: connection) {
 
             if (data.action === Actions.leave) {
                 const resp = roomService.leaveRoom(data)
-                return resp.game?.players.forEach(player => {
+                console.log('resp is ', resp)
+                return resp.game!.players.forEach(player => {
                     ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(resp))
                 })
 
