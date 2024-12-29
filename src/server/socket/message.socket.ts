@@ -18,7 +18,6 @@ export function messageHandler(con: connection) {
 
             // parse File And Do Action
             let data = JSON.parse(msg.utf8Data);
-            console.log(data)
             if (data.action === Actions.create) {
                 const response = roomService.createRoom(data);
                 return con.send(JSON.stringify(response));

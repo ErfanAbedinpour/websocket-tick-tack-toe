@@ -14,6 +14,7 @@ const ACTIONS = {
 // clientID
 let clientId;
 let gameId;
+let isPlayerJoined = false;
 
 const infoDiv = document.getElementById("information");
 const buttonsDiv = document.getElementById("buttons");
@@ -62,6 +63,7 @@ ws.addEventListener("message", msg => {
             p.innerText = `user${i + 1}: ${players[i].connectionId}`;
             infoDiv.append(p);
         }
+        isPlayerJoined = true;
 
         enableButton(leaveGameBtn)
         enableButton(joinBtn)
@@ -104,6 +106,7 @@ function gameStateAction(state) {
     clearInformations();
     clearGameBoard()
     gameId = null
+    isPlayerJoined = false;
 }
 // new  Game 
 newGameBtn.addEventListener("click", () => {
@@ -114,6 +117,8 @@ leaveGameBtn.addEventListener('click', leaveRoom)
 
 document.querySelectorAll('.cell').forEach(el => {
     el.addEventListener('click', () => {
+        if (!isPlayerJoined)
+            return alert("wait for join player")
         if (!gameId)
             return alert("please join ot create new room")
 
@@ -134,7 +139,6 @@ document.querySelectorAll('.cell').forEach(el => {
 // join Game
 joinBtn.addEventListener('click', () => {
     const gameId = gameInput.value;
-    console.log("client id is ", clientId)
 
     const paylaod = {
         action: ACTIONS.join,
@@ -172,7 +176,6 @@ function createRoom(clientId) {
 function clearInformations() {
     const nodes = infoDiv.childNodes;
     for (let i = 0; i < nodes.length; i++) {
-        console.log(nodes[i])
         nodes[i].innerText = "";
     }
     gameInput.value = "";
@@ -181,7 +184,6 @@ function clearInformations() {
 function clearGameBoard() {
     const nodes = board.childNodes;
     for (let i = 0; i < nodes.length; i++) {
-        console.log(nodes[i])
         nodes[i].innerText = "";
     }
 }
@@ -199,6 +201,3 @@ function leaveRoom() {
     ws.send(JSON.stringify(payload));
 }
 
-function move(position) {
-
-}
