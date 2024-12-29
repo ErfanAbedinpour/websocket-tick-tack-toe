@@ -2,12 +2,11 @@
 Simple tick Tack Toe Game with Nodejs And Pure WebScoket Protocol and Redis Cache manager
 
 ## Approach
-1. [] Create Game
-2. [] Joined Game 
-3. [] Show LeaderBorad
-4. [] Play Game
+1. [x] Create Game
+2. [x] Joined Game 
+3. [x] Show LeaderBorad
+4. [x] Play Game
 
 ## Stack
-- redis
-- Nodejs
-- WebSocket
+- Nodejs(http std module)
+- WebSocket(pure webSocket)
