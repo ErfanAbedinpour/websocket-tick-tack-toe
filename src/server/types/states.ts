@@ -7,7 +7,8 @@ interface IConnection {
 
 interface Player {
     connectionId: string;
-    symbol: GameUserSymbol
+    symbol: GameUserSymbol,
+    myTurn: boolean
 }
 
 interface IRoom {

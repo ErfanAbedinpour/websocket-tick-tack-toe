@@ -22,7 +22,9 @@ export class RoomService {
         RoomStates.set(gameId, {
             players: [{
                 connectionId: clientId,
-                symbol: GameUserSymbol.x
+                symbol: GameUserSymbol.x,
+                myTurn: true
+
             }], isMax: false, board
         });
 
@@ -49,7 +51,8 @@ export class RoomService {
 
         game.players.push({
             connectionId: clientId,
-            symbol: GameUserSymbol.y
+            symbol: GameUserSymbol.y,
+            myTurn: false
         });
         game.isMax = true;
 

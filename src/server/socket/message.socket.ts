@@ -42,15 +42,15 @@ export function messageHandler(con: connection) {
             }
 
             if (data.action === Actions.move) {
-                console.log('i am here')
-                console.log("move is ", gameService.move(data))
+                gameService.move(data)
 
                 const game = RoomStates.get(data.gameId);
-                console.log('game is ', game)
-                if (gameService.isUserWin(data)) {
-                    console.log('toye iefam')
 
+                const symbol = game!.players.find(player => player.connectionId === data.clientId)!.symbol;
+
+                if (gameService.isUserWin(symbol)) {
                     game!.players.forEach(player => {
+
                         if (player.connectionId === data.clientId) {
                             const payload: IWsResponse = {
                                 action: Actions.win,
@@ -69,10 +69,10 @@ export function messageHandler(con: connection) {
                             ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(payload))
                         }
                     })
+                    RoomStates.delete(data.gameId);
                     return;
                 }
-                console.log('kharajam')
-                const symbol = game?.players.find(player => player.connectionId === data.clientId)?.symbol
+
 
                 game?.players.forEach(player => {
                     const paylaod: IWsResponse = {
@@ -83,17 +83,20 @@ export function messageHandler(con: connection) {
                         y: data.move.y,
                         symbol: symbol!.toString()
                     }
-                    console.log('response is ', paylaod)
+                    if (player.connectionId === data.clientId) {
+                        player.myTurn = false;
+                    } else {
+                        player.myTurn = true;
+                    }
                     ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(paylaod))
                 })
-
             }
         } catch (err) {
             if (err instanceof WsError)
-                con.send(JSON.stringify(err.error))
+                return con.send(JSON.stringify(err.error))
 
             if (err instanceof Error)
-                con.send(JSON.stringify({ action: Actions.error, message: err.message }))
+                return con.send(JSON.stringify({ action: Actions.error, message: err.message }))
 
         }
     }

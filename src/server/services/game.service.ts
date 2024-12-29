@@ -2,6 +2,7 @@ import { Actions } from "../constant/actions.enum";
 import { GameNotFound } from "../error/game.notFound.error";
 import { InvalidMoveError } from "../error/invalid.move.error";
 import { UserNotFound } from "../error/user.notFound.error";
+import { WrongTrunError } from "../error/wrong-turn.error.";
 import { RoomStates } from "../types/states";
 import { MoveDto } from "./dto/move-game.dto";
 
@@ -55,7 +56,6 @@ export class GameService {
     private isValidPosition(position: string): boolean {
 
         const [x, y] = this.parsePosition(position);
-        console.log("x is ", x, 'y is ', y, 'board is ', this.board[x][y]);
         return this.board[x][y] === null
     }
     // check user is Win or not
@@ -70,7 +70,6 @@ export class GameService {
     }
     // movement  
     move(data: MoveDto): boolean {
-        console.log(' i am in move')
         const { clientId, gameId, move } = data;
 
         const game = RoomStates.get(gameId);
@@ -78,27 +77,24 @@ export class GameService {
         if (!game)
             throw new GameNotFound("game not found");
 
-        console.log("game is ", game)
 
         const user = game.players.find(player => player.connectionId == clientId);
 
-        console.log("user is ", user)
 
         if (!user)
             throw new UserNotFound("user not found")
 
+        if (!user.myTurn)
+            throw new WrongTrunError("not your turn")
+
         this.board = game.board;
-        console.log('board is ', this.board)
 
         const { x, y } = move;
 
         if (!this.isValidPosition(`${x},${y}`))
             throw new InvalidMoveError("invalid movment");
 
-
         this.board[x][y] = user.symbol;
-
-        console.log('board 2 is ', this.board)
         return true;
     }
 }
