@@ -35,7 +35,6 @@ export function messageHandler(con: connection) {
 
             if (data.action === Actions.leave) {
                 const resp = roomService.leaveRoom(data)
-                console.log('resp is ', resp)
                 return resp.game!.players.forEach(player => {
                     ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(resp))
                 })
@@ -48,7 +47,7 @@ export function messageHandler(con: connection) {
                 const game = RoomStates.get(data.gameId);
 
                 const symbol = game!.players.find(player => player.connectionId === data.clientId)!.symbol;
-
+                // if one user win
                 if (gameService.isUserWin(symbol)) {
                     game!.players.forEach(player => {
 
@@ -73,7 +72,20 @@ export function messageHandler(con: connection) {
                     RoomStates.delete(data.gameId);
                     return;
                 }
-
+                // if game is draw
+                if (gameService.isDraw()) {
+                    game!.players.forEach(player => {
+                        const payload: IWsResponse = {
+                            action: Actions.draw,
+                            gameId: data.gameId,
+                            clientId: player.connectionId,
+                            message: "draw"
+                        }
+                        ConnectionStates.get(player.connectionId)?.connection.send(JSON.stringify(payload));
+                    })
+                    RoomStates.delete(data.gameId);
+                    return;
+                }
 
                 game?.players.forEach(player => {
                     const paylaod: IWsResponse = {

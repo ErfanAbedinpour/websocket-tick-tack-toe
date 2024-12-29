@@ -99,8 +99,8 @@ ws.addEventListener("message", msg => {
 function gameStateAction(state) {
     alert(state)
     enableButton(newGameBtn)
+    enableButton(joinBtn)
     disableButton(leaveGameBtn)
-    disableButton(joinBtn)
     clearInformations();
     clearGameBoard()
     gameId = null

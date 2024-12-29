@@ -68,6 +68,17 @@ export class GameService {
             this.checkDiagonal(user)
         )
     }
+    isDraw() {
+        for (const row of this.board) {
+            for (const col of row) {
+                if (col === null) {
+                    return false
+
+                }
+            }
+        }
+        return true;
+    }
     // movement  
     move(data: MoveDto): boolean {
         const { clientId, gameId, move } = data;
